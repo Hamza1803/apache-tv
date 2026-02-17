@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApacheTV</title>
+
+  <link rel="icon" type="image/png" href="logo/apache.png">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- Écran de sélection des utilisateurs (style Netflix) -->
+<div id="user-selection-screen" class="user-selection-screen hidden">
+  <div class="selection-content">
+    <h1 class="selection-title">Qui regarde ?</h1>
+    <div id="user-avatars-container" class="user-avatars-container">
+      <!-- Les avatars seront générés ici -->
+    </div>
+    <button id="add-user-from-selection" class="add-user-btn">
+      <span class="add-icon">+</span>
+      <span>Ajouter un profil</span>
+    </button>
+  </div>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="logo-area" onclick="showDashboard()">
+    <img src="logo/apache.png" alt="Logo ApacheTV" class="logo" />
+    <h1>ApacheTV</h1>
+  </div>
+  <div class="search-container">
+    <input type="text" id="global-search" placeholder="Rechercher une chaîne..." />
+  </div>
+  <div style="display:flex;align-items:center;gap:15px">
+    <select id="language-selector" class="language-selector">
+      <option value="fr">🇫🇷 FR</option>
+      <option value="en">🇬🇧 EN</option>
+      <option value="es">🇪🇸 ES</option>
+    </select>
+    <button id="user-menu-btn" class="user-icon" title="Mon compte">👤</button>
+  </div>
+</header>
+
+<div id="notifications" class="notifications-container"></div>
+
+<!-- Loader overlay -->
+<div id="loader-overlay" class="loader-overlay hidden">
+  <div class="loader-spinner">
+    <div class="spinner"></div>
+    <p>Chargement en cours...</p>
+  </div>
+</div>
+
+<main id="main-content">
+  <div id="status" class="status">Veuillez sélectionner ou ajouter un utilisateur</div>
+
+  <div id="dashboard" class="dashboard-grid hidden">
+    <div class="dash-card live" onclick="showSection('live')">
+      <div class="dash-icon">📺</div>
+      <div class="dash-label">LIVE TV</div>
+    </div>
+    <div class="dash-card movies" onclick="showSection('movies')">
+      <div class="dash-icon">🎬</div>
+      <div class="dash-label">FILMS</div>
+    </div>
+    <div class="dash-card series" onclick="showSection('series')">
+      <div class="dash-icon">🍿</div>
+      <div class="dash-label">SÉRIES</div>
+    </div>
+    <div class="dash-card favs" onclick="showSection('favorites')">
+      <div class="dash-icon">⭐</div>
+      <div class="dash-label">FAVORIS</div>
+    </div>
+  </div>
+
+  <div id="channel-view" class="hidden">
+    <div class="view-header">
+      <button onclick="showDashboard()" class="back-btn">← Retour au menu</button>
+      <h2 id="current-section-title">Chaînes</h2>
+    </div>
+    <div class="pagination-controls">
+      <div class="pagination-left">
+        <button id="prev-page-btn" class="pagination-btn" onclick="prevPage()">← Précédent</button>
+        <span id="page-info" class="page-info">Page 1</span>
+        <button id="next-page-btn" class="pagination-btn" onclick="nextPage()">Suivant →</button>
+      </div>
+      <div class="pagination-right">
+        <label for="items-per-page">Par page:</label>
+        <select id="items-per-page" onchange="changeItemsPerPage(this.value)">
+          <option value="20">20</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+    <div id="categories"></div>
+  </div>
+</main>
+
+<div id="user-menu" class="dropdown-menu">
+  <div class="user-header">
+    <span id="current-user-name">Invité</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="add-user-btn" title="Ajouter un profil">➕</button>
+      <button id="edit-user-btn" title="Modifier le profil">✏️</button>
+      <button id="delete-user-btn" title="Supprimer le profil">🗑️</button>
+    </div>
+  </div>
+  <div id="user-list" class="user-list"></div>
+  <div class="user-footer">
+    <button id="switch-user-btn" class="switch-user-btn">
+      🔄 Changer de profil
+    </button>
+  </div>
+</div>
+
+<div id="user-modal" class="modal">
+  <div class="modal-content">
+    <h2>➕ Nouvel utilisateur</h2>
+    <label>Nom du profil
+      <input id="user-name" type="text" placeholder="Ex : Salon">
+    </label>
+    <div class="tabs">
+      <button data-tab="url" class="tab-btn active">URL M3U</button>
+      <button data-tab="xtream" class="tab-btn">Xtream Codes</button>
+    </div>
+    <div id="tab-url" class="tab-content active">
+      <input id="m3u-url" type="text" placeholder="https://...">
+      <button id="upload-m3u-btn" class="secondary">Importer un fichier (.m3u/.m3u8)</button>
+    </div>
+    <div id="tab-xtream" class="tab-content">
+      <input id="xt-url" type="text" placeholder="http://iptv.example.com:8080">
+      <input id="xt-user" type="text" placeholder="Nom d'utilisateur">
+      <input id="xt-pass" type="password" placeholder="Mot de passe">
+    </div>
+    <p id="import-status" class="status-msg"></p>
+    <div class="modal-actions">
+      <button id="create-user" class="primary">Se connecter</button>
+      <button id="cancel-user">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div id="player-overlay" class="modal">
+  <div class="player-container-wrapper">
+    <button id="close-player-side" class="close-btn outside">&times;</button>
+    <div class="player-container">
+      <video id="video-player" controls></video>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="script.js"></script>
+</body>
+</html>
