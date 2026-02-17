@@ -1,6 +1,6 @@
 # 📺 ApacheTV
 
-**ApacheTV** is a modern, lightweight web application to watch and manage your IPTV channels (M3U / Xtream Codes) directly in your browser — no server, no installation, just pure HTML, CSS, and JavaScript with a Netflix-inspired interface.
+**ApacheTV** is a modern, lightweight web application to watch and manage your IPTV channels (M3U / Xtream Codes) directly in your browser — no server, no installation, just pure HTML, CSS, and JavaScript.
 
 
 <img width="1913" height="915" alt="3" src="https://github.com/user-attachments/assets/d61ffaae-70b5-4831-8f03-51a7ac0693ae" />
